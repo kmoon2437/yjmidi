@@ -67,7 +67,7 @@ module.exports = class YJKFileConverter{
         let header = {
             divtype:file.header.ticksPerBeat ? 'tpb' : 'smtpe',
             div0:file.header.ticksPerBeat || file.header.framesPerSecond,
-            div1:file.header.ticksPerBeat ? undefined : file.header.ticksPerFrame
+            div1:file.header.ticksPerBeat ? undefined : file.header.ticksPerFrame,
             fileVolume:opts.fileVolume
         };
         if(typeof header.div1 == 'undefined'){
