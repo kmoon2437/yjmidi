@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+1. 이 파일은 편의상 순수 xml 파일로 만든 것이며,
+실제 데이터는 binary xml 포맷으로 저장되어야 함
+2. 특별한 타입(short,long,int등) 기재 없이
+그냥 정수형으로 저장되어야 한다고만 하면
+어떤 정수형이든 상관없다는 뜻
+3. d 태그는 map 구조의 데이터를 담는 태그로,
+js의 객체나 java의 Map 생각하면 편함
+-->
+<yjk xmlns:meta="https://static.choyunjin.kr/xmlprefix/meta">
+    <!-- 파일 전체의 정보를 담음 -->
+    <header>
+        <!-- 기존 yjkl 파일의 헤더
+        곡정보,가사 설정 등 -->
+        <yjkl
+        title="테스트곡"
+        singer="테스트가수"
+        meta-layout="7"
+        />
+        
+        <!--
+        midi 반주 데이터 관련
+        divtype이 tpb면
+        div0에 박자당 틱이 와야하고
+        (이때는 div1이 필요없음),
+        divtype이 smtpe면
+        div0에 초당 프레임수,
+        div1에 프레임당 틱수가 와야한다.
+        (이때 div0과 div1은
+        정수형으로 저장되어야 함)
+        fileVolume은 파일 전체의 볼륨
+        0~200까지 설정가능. 기본값 200
+        적용법(maxFileVolume = 200)
+        expression(cc11) *= (fileVolume/maxFileVolume)
+        (channel volume과 expression은
+        작동방식이 비슷하다)
+        -->
+        <midi
+        divtype="tpb"
+        div0="120"
+        fileVolume="200"
+        />
+    </header>
+    
+    <!-- midi 반주 데이터 -->
+    <mididata>
+        <!-- 공통으로 들어가야 하는 meta 이벤트
+        (주로 재생시간이나 파일 자체에 관련된 것들)
+        여기에 와야 하는 이벤트:
+        lyrics(5)
+        set tempo(81)
+        smtpe offset(84)
+        time signature(88)
+        key signature(89)
+        구조는 밑에 data부분 참조
+        copyright notice 메타 이벤트는 meta:copyrightNotice(문자열)로 대체 -->
+        <global meta:copyrightNotice="(C) 2021~ choyunjin">
+            <e dt="0" t="255" st="81">
+                <d type="bpm" tempo="150" />
+            </e>
+            <e dt="7800" t="255" st="81">
+                <d type="microsec" tempo="250000" />
+            </e>
+        </global>
+        
+        <!-- 나머지 이벤트 -->
+        <data>
+            <!-- block 1개 = 포트 1개 -->
+            <block>
+                <!-- track name 메타 이벤트는 meta:trackName(문자열)으로 대체
+                instrument name 메타 이벤트는 meta:instrumentName(문자열)으로 대체 -->
+                <track meta:trackName="Track 1-1">
+                    <!-- e는 event, dt는 delta time, t는 type, st는 subtype
+                    데이터상으로 저 3개는 모두 정수형이어야 함
+                    event type은 type과 subtype으로 나뉨(둘다 숫자)
+                    type: meta(255),midi(8),sysex(240),escape(247)으로 총 4개
+                    subtype: meta는 meta대로 midi는 midi대로 겁나 많음
+                    (sysex,escape같이 subtype이 필요 없으면 안넣거나 0을 넣으면 됨) -->
+                    
+                    <!-- meta event의 데이터 구조 -->
+                    <e dt="0" t="255" st="...">
+                        <!-- d는 data라는 뜻이고
+                        k,v는 각각 key,value임 -->
+                        
+                        <!-- sequence number(0) 일 때 들어가는 것들 -->
+                        <!-- 둘다 정수 -->
+                        <d msb="..." lsb="..." />
+                        
+                        <!-- text(1)
+                        lyrics(5)
+                        marker(6)
+                        cue point(7)
+                        일 때 들어가는 것들 -->
+                        <d txt="...내용..." /> <!-- 문자열 -->
+                        
+                        <!-- midi channel prefix(32)일 때 들어가는 것들 -->
+                        <d prefix="..." /> <!-- 정수 -->
+                        
+                        <!-- end of track(47)은 데이터가 필요 없음 -->
+                        
+                        <!-- set tempo(81)일 때 들어가는 것들
+                        type: 문자열. bpm이면 bpm, microsec이면 박자당 마이크로초
+                        tempo: 정수 -->
+                        <d type="bpm" tempo="150" />
+                        
+                        <!-- smtpe offset(84)일 때 들어가는 것들
+                        순서대로 시간,분,초,프레임,서브프레임(?) -->
+                        <d d="19 72 11 21 19" /> <!-- binary data -->
+                        
+                        <!-- time signature(88)일 때 들어가는 것들
+                        값의 순서는 표준 midi파일에서의 순서와 같음 -->
+                        <d d="19 72 11 21" /> <!-- binary data -->
+                        
+                        <!-- key signature(89)일 때 들어가는 것들
+                        key: 음정. 정수형이며, 도(C)가 0이고 -7~+7까지 지정가능
+                        min: 단조인지 여부. boolean형 -->
+                        <d key="..." min="false" />
+                        
+                        <!-- sequencer specific(127)일 때 들어가는 것들 -->
+                        <d d="19 72 11 21 19 72 ..." /> <!-- binary data -->
+                    </e>
+                    
+                    <!-- midi 이벤트
+                    subtype 종류:
+                    note off(8)
+                    note on(9)
+                    note aftertouch(10)
+                    control change(11)
+                    program change(12)
+                    channel aftertouch(13)
+                    pitch bend(14) -->
+                    <e dt="360" t="8" st="...">
+                        <!-- c는 channel(정수,0부터 시작)
+                        p는 param(binary data)
+                        p는 일반적으로 값이 2개이며,
+                        2변째 값이 필요 없으면
+                        안 넣거나 0을 넣으면 됨 -->
+                        <d c="0" p="60 100" />
+                    </e>
+                    
+                    <!-- sysex 이벤트
+                    내용물은 맨앞에 0xf0(240)과
+                    맨뒤에 0xf7(247)을 포함하지 않음 -->
+                    <e dt="0" t="240">
+                        <d d="19 72 11 21 19 72 ..." />
+                    </e>
+                    
+                    <!-- escape 이벤트
+                    안에있는 내용물을 그대로
+                    midi 메세지로 보냄 -->
+                    <e dt="0" t="247">
+                        <d d="19 72 11 21 19 72 ..." />
+                    </e>
+                </track>
+                <track>
+                    <!-- ... -->
+                </track>
+                <track>
+                    <!-- ... -->
+                </track>
+            </block>
+        </data>
+    </mididata>
+    <!-- yjkl 파일과 호환되는 구조의 가사 데이터 -->
+    <yjkl-lyrics>
+        <!-- c는 code,d는 data(둘다 문자열) -->
+        <cmd c="c" d="bpm 189" />
+        <cmd c="t" d="겋헣헣헣허" />
+    </yjkl-lyrics>
+</yjk>
