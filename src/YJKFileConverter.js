@@ -59,7 +59,7 @@ module.exports = class YJKFileConverter{
     static midi2yjk(midiBuf,opts){
         opts = Object.assign({
             compress:'raw',
-            portSeparate:'trackName',
+            portSeparate:'portPrefixMeta',
             fileVolume:200
         },opts);
         let file = new MidiFile(midiBuf);
@@ -81,7 +81,7 @@ module.exports = class YJKFileConverter{
         let blocks = [];
         //let last_delta = 0;
         if(file.header.format != 1) throw new TypeError('Only format 1 is supported');
-        file.tracks.forEach(track => {
+        file.ports[0].forEach(track => {
             let eventsObj = track.getEvents();
             let events = [];
             for(let i in eventsObj){
@@ -96,6 +96,17 @@ module.exports = class YJKFileConverter{
             let track2 = {
                 meta:{},events:[]
             };
+
+            // 포트 번호 관련
+            let portnum;
+            switch(opts.portSeparate){
+                case 'trackName':
+                    portnum = trackname2portnum(track2.meta.trackName);
+                break;
+                case 'portPrefixMeta': default:
+                    portnum = 0; // 이벤트를 도는 과정에서 바뀔 수 있으므로 일단 0으로 지정(기본값)
+                break;
+            }
             events.forEach(event => {
                 if(event.type == Consts.events.types.META){
                     switch(event.subtype){
@@ -115,6 +126,11 @@ module.exports = class YJKFileConverter{
                         case Consts.events.subtypes.meta.KEY_SIGNATURE:
                             globalEvents.push(event);
                         break;
+                        case Consts.events.subtypes.meta.PORT_PREFIX:
+                            // port에 따라 트랙을 분류하기 위한 부분
+                            // port prefix(0x21) meta event로 처리하는 경우에만 portnum 변수를 수정
+                            if(opts.portSeparate != 'trackName') portnum = event.port;
+                        break;
                         /**
                         case Consts.events.subtypes.meta.SEQUENCE_NUMBER:
                         case Consts.events.subtypes.meta.TEXT:
@@ -132,7 +148,7 @@ module.exports = class YJKFileConverter{
                     trackEvents.push(event);
                 }
             });
-
+            
             /**
              * delta time 방식으로 변환
              */
@@ -174,7 +190,6 @@ module.exports = class YJKFileConverter{
                 }
             });
 
-            let portnum = trackname2portnum(track2.meta.trackName);
             //console.log(track2.meta.track_name,portnum);
             if(!blocks[portnum]) blocks[portnum] = [];
             blocks[portnum].push(track2);
@@ -336,7 +351,7 @@ module.exports = class YJKFileConverter{
             elements:[yjk]
         };
         
-        return BinaryXML.fromParsedXML(xml,{ compress });
+        return BinaryXML.fromParsedXML(xml,{ compress:opts.compress });
         //return Buffer.from(JSON.stringify(json,0,4),'utf8');
     }
 }

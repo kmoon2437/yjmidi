@@ -53,6 +53,10 @@ module.exports = class MidiFile{
                     delete event.param2;
                     delete event.param3;
                     delete event.param4;
+
+                    if(event.subtype == Consts.events.subtypes.meta.PORT_PREFIX){
+                        event.port = event.data[0];
+                    }
                 }else if(event.type == Consts.events.types.MIDI){
                     let p = [];
                     p.push(event.param1 || 0);

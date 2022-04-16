@@ -16,7 +16,8 @@ module.exports = {
                 LYRICS:0x05,
                 MARKER:0x06,
                 CUE_POINT:0x07,
-                MIDI_CHANNEL_PREFIX:0x20,
+                CHANNEL_PREFIX:0x20,
+                PORT_PREFIX:0x21, // 사실 비표준이긴 한데 필요해서 넣어둠
                 END_OF_TRACK:0x2f,
                 SET_TEMPO:0x51,
                 SMTPE_OFFSET:0x54,
