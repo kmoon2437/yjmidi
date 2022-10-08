@@ -79,6 +79,7 @@ module.exports = class MidiFile{
                     lastMidiEventMs = event.playms;
                 }
             });
+            if(!this.ports[port]) this.ports[port] = [];
             this.ports[port].push(track);
             endtimes.push(unsafe ? lastMidiEvent : playtick);
             endtimesMs.push(unsafe ? lastMidiEventMs : playms);
