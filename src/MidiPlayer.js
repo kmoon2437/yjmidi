@@ -8,6 +8,7 @@ const INTERVAL_MS = 1;
 module.exports = class MidiPlayer extends EventEmitter{
     constructor(portCount = 1){
         super();
+        if(portCount < 1) throw new RangeError('portCount(1st argument) must be >= 1. Received '+portCount);
         this.portCount = portCount;
     }
     
@@ -22,6 +23,7 @@ module.exports = class MidiPlayer extends EventEmitter{
     }
     
     loadYJK(data){
+        console.error('Warning: YJK file is deprecated.');
         if(this.playing) this.pause();
         if(data instanceof YJKFile){
             this.d = data;
@@ -29,6 +31,47 @@ module.exports = class MidiPlayer extends EventEmitter{
             this.d = new YJKFile(data);
         }
         this.prepare();
+    }
+    
+    getPoly(port){
+        return this.calcPolyOfAllTracks();
+        if(port !== 0){
+            
+        }
+    }
+    
+    calcPoly(portNum = 0,allPorts = false){
+        let currentPoly = 0;
+        let maxPoly = 0;
+        let ports = allPorts ? this.d.ports : [this.d.ports[portNum]];
+        for(let playtick = 0;playtick <= this.durationTick;playtick++){
+            if(currentPoly < 0){
+                throw new RangeError('currentPoly must not be 0');
+            }
+            ports.forEach(port => port.forEach(track => {
+                let events = track.getEvents();
+                if(events[playtick]){
+                    events[playtick].forEach(event => {
+                        if(event.type == Consts.events.types.MIDI){
+                            if(event.subtype == Consts.events.subtypes.midi.NOTE_ON){
+                                /*if(events.params[1] == 0){ // Note on인데 velocity 0이면 note off로 처리
+                                    currentPoly--;
+                                }else{
+                                    currentPoly++;
+                                    if(currentPoly > maxPoly) maxPoly = currentPoly;
+                                }*/
+                                currentPoly++;
+                                if(currentPoly > maxPoly) maxPoly = currentPoly;
+                            }else if(event.subtype == Consts.events.subtypes.midi.NOTE_OFF){
+                                currentPoly--;
+                            }
+                        }
+                    });
+                }
+            }));
+        }
+        console.log(currentPoly,maxPoly);
+        return maxPoly;
     }
     
     prepare(){

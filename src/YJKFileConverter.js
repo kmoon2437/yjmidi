@@ -57,6 +57,7 @@ function newEscapeEvent(dt,bytes){
 
 module.exports = class YJKFileConverter{
     static midi2yjk(midiBuf,opts){
+        console.error('Warning: YJK file is deprecated.');
         opts = Object.assign({
             compress:'raw',
             portSeparate:'portPrefixMeta',

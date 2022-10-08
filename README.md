@@ -1,13 +1,10 @@
 # yjmidi
-midi/yjk file parser/player
-
-## About yjk file
-The yjk(**YJK**araoke) file is a file format created for use in [yj-karaoke-player](https://github.com/kmoon2437/yj-karaoke-player).
+midi file parser/player
 
 ## Usage
 ```js
 const fs = require('fs');
-const { MidiFile,YJKFile,MidiPlayer,YJKFileConverter } = require('yjmidi');
+const { MidiFile,MidiPlayer } = require('yjmidi');
 
 let midi = fs.readFileSync('...'); // your midi file. it can be an ArrayBuffer or Uint8Array or nodejs Buffer
 
@@ -22,24 +19,11 @@ file.header.durationMs; // duration in ms
 file.ports; // the tracks separated by port
 file.tempoEvents; // "set tempo" events
 
-let yjk = fs.readFileSync('...'); // your yjk file. it can be an ArrayBuffer or Uint8Array or nodejs Buffer
-
-let file2 = new YJKFile(yjk); // YJKFile instance
-file2.header; // similar to MidiFile.header
-
-file2.globalEvents; // global events
-file2.tempoEvents; // "set tempo" events
-file2.ports; // the tracks separated by port
-
-let midi2 = fs.readFileSync('...'); // your midi file. it can be an ArrayBuffer or Uint8Array or nodejs Buffer
-fs.writeFileSync('./test.yjk',YJKFileConverter.midi2yjk(midi2));
-
 /**
- * Playing midi/yjk files
+ * Playing midi files
  */
 let player = new MidiPlayer(); // MidiPlayer instance
 player.loadMidi(midi); // loading a midi file
-player.loadYJK(yjk); // loading a yjk file
 
 player.on('midievent',(event,portnum,message) => {
     event; // information of event
@@ -51,8 +35,8 @@ player.play();
 player.pause();
 
 player.tempo; // similar to HTMLMediaElement.playbackRate
-player.durationTick; // same as MidiFile.header.durationTick and YJKFile.header.durationTick
-player.durationMs; // same as MidiFile.header.durationMs and YJKFile.header.durationMs
+player.durationTick; // same as MidiFile.header.durationTick
+player.durationMs; // same as MidiFile.header.durationMs
 player.currentTick;
 player.currentMs;
 

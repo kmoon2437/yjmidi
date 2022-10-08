@@ -1,7 +1,6 @@
 const MidiTrack = require('./MidiTrack');
 const Consts = require('./Consts');
 const { BinaryXML } = require('yj-binaryxml');
-const fs = require('fs');
 //const { Validator:JSONSchemaValidator } = require('jsonschema');
 
 const DURATION_TAIL_MS = 3000;

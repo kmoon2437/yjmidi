@@ -6,9 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "bin": {
-    "midi2yjk": "cli/midi2yjk.js"
-  },
   "author": "",
   "license": "MIT",
   "repository": {

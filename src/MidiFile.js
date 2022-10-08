@@ -1,4 +1,3 @@
-const fs = require('fs');
 const MidiFileData = require('midifile');
 const MidiTrack = require('./MidiTrack');
 const Consts = require('./Consts');
@@ -28,7 +27,6 @@ module.exports = class MidiFile{
         }
         
         this.ports = [];
-        let tracks = this.ports[0] = [];
         let endtimes = [];
         let endtimesMs = [];
         let events = this.d.getEvents();
@@ -38,6 +36,7 @@ module.exports = class MidiFile{
             let playms = 0;
             let lastMidiEvent = 0;
             let lastMidiEventMs = 0;
+            let port = 0; // 포트번호 기본값은 0
             let track = new MidiTrack(i);
             events.forEach((event) => {
                 playtick += event.delta;
@@ -54,8 +53,9 @@ module.exports = class MidiFile{
                     delete event.param3;
                     delete event.param4;
 
+                    // 포트번호 분류
                     if(event.subtype == Consts.events.subtypes.meta.PORT_PREFIX){
-                        event.port = event.data[0];
+                        port = event.port = event.data[0];
                     }
                 }else if(event.type == Consts.events.types.MIDI){
                     let p = [];
@@ -79,7 +79,7 @@ module.exports = class MidiFile{
                     lastMidiEventMs = event.playms;
                 }
             });
-            tracks.push(track);
+            this.ports[port].push(track);
             endtimes.push(unsafe ? lastMidiEvent : playtick);
             endtimesMs.push(unsafe ? lastMidiEventMs : playms);
         }
