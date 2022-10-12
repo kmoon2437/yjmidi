@@ -1,4 +1,3 @@
-const MidiFileData = require('midifile');
 const MidiTrack = require('./MidiTrack');
 const Consts = require('./Consts');
 const { ByteStream } = require('byte-data-stream');

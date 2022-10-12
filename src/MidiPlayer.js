@@ -1,7 +1,6 @@
 const EventEmitter = require('events');
 const Consts = require('./Consts');
 const MidiFile = require('./MidiFile');
-const YJKFile = require('./YJKFile');
 
 const INTERVAL_MS = 1;
 
@@ -18,17 +17,6 @@ module.exports = class MidiPlayer extends EventEmitter{
             this.d = data;
         }else{
             this.d = new MidiFile(data);
-        }
-        this.prepare();
-    }
-    
-    loadYJK(data){
-        console.error('Warning: YJK file is deprecated.');
-        if(this.playing) this.pause();
-        if(data instanceof YJKFile){
-            this.d = data;
-        }else{
-            this.d = new YJKFile(data);
         }
         this.prepare();
     }
@@ -81,7 +69,7 @@ module.exports = class MidiPlayer extends EventEmitter{
         this.tempo = 1; // 배속 설정
         this.resetNotes(true);
 
-        // reset sysex가 없는 yjk파일의 경우 gs reset을 기본으로 적용하도록 설정
+        // reset sysex가 없는 midi파일의 경우 gs reset을 기본으로 적용하도록 설정
         for(let i = 0;i < this.portCount;i++){
             this.triggerMidiEvent({
                 type:Consts.events.types.SYSEX,
@@ -252,14 +240,6 @@ module.exports = class MidiPlayer extends EventEmitter{
         let currentTick = this.currentTick;
         let t = currentTick - this.playtick;
         for(let i = 0;i < t;i++){
-            if(this.d instanceof YJKFile){
-                // globalEvents는 yjk파일에만 있음
-                let gevents = this.d.globalEvents.getEvents();
-                if(gevents[this.playtick]){
-                    gevents[this.playtick].forEach(event => this.triggerMidiEvent(event,null));
-                }
-            }
-
             this.d.ports.forEach((port,num) => {
                 port.forEach(track => {
                     let events = track.getEvents();
