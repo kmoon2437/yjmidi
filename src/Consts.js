@@ -20,7 +20,7 @@ module.exports = {
                 PORT_PREFIX:0x21, // 사실 비표준이긴 한데 필요해서 넣어둠
                 END_OF_TRACK:0x2f,
                 SET_TEMPO:0x51,
-                SMTPE_OFFSET:0x54,
+                SMPTE_OFFSET:0x54,
                 TIME_SIGNATURE:0x58,
                 KEY_SIGNATURE:0x59,
                 SEQUENCER_SPECIFIC:0x7f

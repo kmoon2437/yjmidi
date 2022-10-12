@@ -46,6 +46,3 @@ player.loadMidi(midi3); // insert an instance of MidiFile
 
 player.play();
 ```
-
-## Others
-This library is using [midifile](https://github.com/nfroidure/midifile) to parse midi files.
