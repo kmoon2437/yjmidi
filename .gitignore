@@ -91,7 +91,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+#dist # webpack 빌드 폴더를 dist로 해놨기 때문에 여긴 주석처리
 
 # Gatsby files
 .cache/
