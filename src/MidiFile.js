@@ -2,12 +2,9 @@ const MidiTrack = require('./MidiTrack');
 const Consts = require('./Consts');
 const { ByteStream } = require('byte-data-stream');
 
-const DURATION_TAIL_MS = 3000;
-
 module.exports = class MidiFile{
-    // unsafe를 true로 설정하면 파일의 duration은 (마지막 midi이벤트 타이밍)+3초 가 됨
-    // unsafe를 false로 설정하면 파일의 duration은 (meta이벤트를 포함한 마지막 이벤트 시간)이 됨
-    constructor(data,unsafe = true){
+    // tailMs = 미디파일이 공백 없이 끝나는 경우에 대비해 추가되는 공백시간(밀리초)
+    constructor(data,tailMs = 500){
         let chunks = [];
         let d = new ByteStream(data);
     
@@ -135,8 +132,6 @@ module.exports = class MidiFile{
         for(let i in tracks){
             let playtick = 0;
             let playms = 0;
-            let lastMidiEvent = 0;
-            let lastMidiEventMs = 0;
             let port = 0; // 포트번호 기본값은 0
             let track = new MidiTrack(i);
             let textDecoder = new TextDecoder();
@@ -187,21 +182,13 @@ module.exports = class MidiFile{
                     }
                 }
                 track.addEvent(playtick,event);
-                if(event.type != Consts.events.types.META){
-                    lastMidiEvent = playtick;
-                }
                 if(event.type == Consts.events.types.META && event.subtype == Consts.events.subtypes.meta.SET_TEMPO){
                     this.tempoEvents.addEvent(playtick,event);
-                    
-                    // 모든 midi 이벤트가 끝나고도 tempo 이벤트가 남아있는 경우
-                    // durationMs와 durationTick에 차이가 생기는 것을 방지
-                    lastMidiEvent = playtick;
                 }
             });
             if(!this.ports[port]) this.ports[port] = [];
             this.ports[port].push(track);
-            endtimes.push(unsafe ? lastMidiEvent : playtick);
-            //endtimesMs.push(unsafe ? lastMidiEventMs : playms);
+            endtimes.push(playtick);
         }
         this.header.durationTick = Math.max(...endtimes);
         
@@ -227,16 +214,16 @@ module.exports = class MidiFile{
         }
         this.header.durationMs = Math.round(this.header.durationMs);
         
-        // durationTick에도 정확히 3초를 추가
-        if(unsafe){
-            this.header.durationMs += DURATION_TAIL_MS;
+        // durationTick에도 정확히 tailMs만큼의 공백시간을 추가
+        if(tailMs > 0){
+            this.header.durationMs += tailMs;
             if(this.header.ticksPerBeat){
                 let tevents = this.tempoEvents.getEvents();
                 tevents = tevents[Math.max(...Object.keys(tevents))];
                 let lastTempo = tevents[tevents.length-1] ? tevents[tevents.length-1].tempo : 500000;
-                this.header.durationTick += Math.round(DURATION_TAIL_MS*1000/lastTempo*this.header.ticksPerBeat);
+                this.header.durationTick += Math.round(tailMs*1000/lastTempo*this.header.ticksPerBeat);
             }else{
-                this.header.durationTick += Math.round(DURATION_TAIL_MS*1000/this.header.tickResolution);
+                this.header.durationTick += Math.round(tailMs*1000/this.header.tickResolution);
             }
         }
     }
