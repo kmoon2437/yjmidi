@@ -8,7 +8,7 @@ module.exports = class MidiFile{
         let chunks = [];
         let d = new ByteStream(data);
     
-        while(d.i < d.buffer.byteLength){
+        while(d.isDataAvailable){
             let id = d.readBytes(4).reduce((a,b) => a+String.fromCharCode(b),'');
             if(d.i <= 4 && id != 'MThd') throw new Error('Invalid header signature(MThd)');
             let length = d.readUint32();
@@ -27,7 +27,7 @@ module.exports = class MidiFile{
             }else if(chunk.id == 'MTrk'){
                 return true;
             }else{
-                unknownChunks.push(chunk);
+                this.unknownChunks.push(chunk);
                 return false;
             }
         });
@@ -66,7 +66,7 @@ module.exports = class MidiFile{
             let events = [];
             let lastMidiEventType;
             let lastMidiEventChannel;
-            while(dd.i < dd.buffer.byteLength){
+            while(dd.isDataAvailable){
                 let delta = dd.readVarUint();
                 let type = dd.readUint8();
                 let length;
