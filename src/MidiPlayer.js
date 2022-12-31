@@ -11,22 +11,22 @@ module.exports = class MidiPlayer extends EventEmitter{
         this.portCount = portCount;
     }
     
-    loadMidi(data){
+    loadMidi(data,opts = {}){
         if(this.playing) this.pause();
         if(data instanceof MidiFile){
             this.d = data;
         }else{
             this.d = new MidiFile(data);
         }
-        this.prepare();
+        this.prepare(opts);
     }
     
-    getPoly(port){
+    /*getPoly(port){
         return this.calcPolyOfAllTracks();
         if(port !== 0){
             
         }
-    }
+    }*/
     
     calcPoly(portNum = 0,allPorts = false){
         let currentPoly = 0;
@@ -62,12 +62,16 @@ module.exports = class MidiPlayer extends EventEmitter{
         return maxPoly;
     }
     
-    prepare(){
+    prepare(opts){
+        opts = Object.assign({
+            dontSendMidiReset:false
+        },opts || {});
+
         this.playms = 0;
         this.lastplayms = 0;
         this.playtick = 0;
         this.tempo = 1; // 배속 설정
-        this.resetNotes(true);
+        if(!opts.dontSendMidiReset) this.resetNotes(true);
 
         // reset sysex가 없는 midi파일의 경우 gs reset을 기본으로 적용하도록 설정
         for(let i = 0;i < this.portCount;i++){
