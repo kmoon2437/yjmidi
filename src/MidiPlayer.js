@@ -64,21 +64,25 @@ module.exports = class MidiPlayer extends EventEmitter{
     
     prepare(opts){
         opts = Object.assign({
-            dontSendMidiReset:false
+            dontInitialize:false,
+            dontSendResetSysex:false
         },opts || {});
 
         this.playms = 0;
         this.lastplayms = 0;
         this.playtick = 0;
         this.tempo = 1; // 배속 설정
-        if(!opts.dontSendMidiReset) this.resetNotes(true);
+        if(!opts.dontInitialize) this.resetNotes(true);
 
         // reset sysex가 없는 midi파일의 경우 gs reset을 기본으로 적용하도록 설정
-        for(let i = 0;i < this.portCount;i++){
-            this.triggerMidiEvent({
-                type:Consts.events.types.SYSEX,
-                data:[0x41,0x10,0x42,0x12,0x40,0x00,0x7f,0x00,0x41,0xf7]
-            },i);
+        // 테스트용으로 sysex를 보내지 않도록 할 수 있음
+        if(!opts.dontSendResetSysex){
+            for(let i = 0;i < this.portCount;i++){
+                this.triggerMidiEvent({
+                    type:Consts.events.types.SYSEX,
+                    data:[0x41,0x10,0x42,0x12,0x40,0x00,0x7f,0x00,0x41,0xf7]
+                },i);
+            }
         }
     }
 
