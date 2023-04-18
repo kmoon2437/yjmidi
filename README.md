@@ -28,7 +28,7 @@ player.loadMidi(midi); // loading a midi file
 player.on('midievent',(event,portnum,message) => {
     event; // information of event
     portnum; // port number
-    message; // midi message. if it is null, this event is meta event
+    message; // midi message. if it is null, the 'event' may be a meta event
 });
 
 player.play();
