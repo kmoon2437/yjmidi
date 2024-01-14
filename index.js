@@ -1,6 +1,4 @@
-module.exports = {
-    Consts:require('./src/Consts'),
-    MidiFile:require('./src/MidiFile'),
-    MidiTrack:require('./src/MidiTrack'),
-    MidiPlayer:require('./src/MidiPlayer')
-};
+module.exports.Consts = require('./src/Consts.js');
+module.exports.MidiFile = require('./src/MidiFile.js');
+module.exports.MidiTrack = require('./src/MidiTrack.js');
+module.exports.MidiPlayer = require('./src/MidiPlayer.js');

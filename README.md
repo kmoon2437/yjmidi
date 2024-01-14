@@ -2,9 +2,11 @@
 midi file parser/player
 
 ## Usage
+
 ```js
-const fs = require('fs');
-const { MidiFile,MidiPlayer } = require('yjmidi');
+// use require() if you are using CommonJS module
+import fs from 'fs';
+import { MidiFile, MidiPlayer } from 'yjmidi';
 
 let midi = fs.readFileSync('...'); // your midi file. it can be an ArrayBuffer or Uint8Array or nodejs Buffer
 
@@ -25,7 +27,7 @@ file.tempoEvents; // "set tempo" events
 let player = new MidiPlayer(); // MidiPlayer instance
 player.loadMidi(midi); // loading a midi file
 
-player.on('midievent',(event,portnum,message) => {
+player.on('midievent', (event, portnum, message) => {
     event; // information of event
     portnum; // port number
     message; // midi message. if it is null, the 'event' may be a meta event

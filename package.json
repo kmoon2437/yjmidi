@@ -1,35 +1,35 @@
 {
-  "name": "yjmidi",
-  "version": "2.6.1",
-  "main": "index.js",
-  "description": "midi/yjk file parser/player",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kmoon2437/yjmidi.git"
-  },
-  "keywords": [
-    "yj",
-    "midi",
-    "yjmidi",
-    "file",
-    "parser",
-    "player"
-  ],
-  "bugs": {
-    "url": "https://github.com/kmoon2437/yjmidi/issues"
-  },
-  "homepage": "https://github.com/kmoon2437/yjmidi#readme",
-  "dependencies": {
-    "byte-data-stream": "^1.1.1",
-    "events": "^3.3.0"
-  },
-  "devDependencies": {
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
-  }
+    "name": "yjmidi",
+    "version": "2.6.1",
+    "main": "index.js",
+    "description": "midi/yjk file parser/player",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kmoon2437/yjmidi.git"
+    },
+    "keywords": [
+        "yj",
+        "midi",
+        "yjmidi",
+        "file",
+        "parser",
+        "player"
+    ],
+    "bugs": {
+        "url": "https://github.com/kmoon2437/yjmidi/issues"
+    },
+    "homepage": "https://github.com/kmoon2437/yjmidi#readme",
+    "dependencies": {
+        "byte-data-stream": "^1.1.1",
+        "events": "^3.3.0"
+    },
+    "devDependencies": {
+        "webpack": "^5.74.0",
+        "webpack-cli": "^4.10.0"
+    }
 }
