@@ -2,9 +2,8 @@
 midi file parser/player
 
 ## Usage
-
-```js
-// use require() if you are using CommonJS module
+CommonJS `require()` is not supported in version 3.0.0-rc1 or higher.
+```ts
 import fs from 'fs';
 import { MidiFile, MidiPlayer } from 'yjmidi';
 
@@ -15,10 +14,10 @@ file.header.format; // 0,1 or 2
 file.header.ticksPerBeat; // If division is frames per seconds, this is null
 file.header.tickResolution; // microseconds per tick
 file.header.tracksCount; // n
-file.header.durationTick; // duration in tick
-file.header.durationMs; // duration in ms
+file.durationTick; // duration in tick
+file.durationMs; // duration in ms
 
-file.ports; // the tracks separated by port
+file.tracks; // the tracks
 file.tempoEvents; // "set tempo" events
 
 /**
