@@ -91,7 +91,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-#dist # webpack 빌드 폴더를 dist로 해놨기 때문에 여긴 주석처리
+dist
 
 # Gatsby files
 .cache/
@@ -130,5 +130,8 @@ out
 
 # 테스트 파일
 test/
+
+# 문서
+docs
 
 # End of https://www.toptal.com/developers/gitignore/api/node
