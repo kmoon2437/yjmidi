@@ -27,7 +27,7 @@ let player = new MidiPlayer(); // MidiPlayer instance
 player.loadMidi(midi); // loading a midi file
 
 player.on('midievent', (event, portnum, message) => {
-    event; // information of event
+    event; // information of the event
     portnum; // port number
     message; // midi message. if it is null, the 'event' may be a meta event
 });
@@ -36,8 +36,8 @@ player.play();
 player.pause();
 
 player.tempo; // similar to HTMLMediaElement.playbackRate
-player.durationTick; // same as MidiFile.header.durationTick
-player.durationMs; // same as MidiFile.header.durationMs
+player.durationTick; // same as MidiFile.durationTick
+player.durationMs; // same as MidiFile.durationMs
 player.currentTick;
 player.currentMs;
 
