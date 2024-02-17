@@ -2,7 +2,7 @@
 midi file parser/player
 
 ## Usage
-CommonJS `require()` is not supported in version 3.0.0-rc1 or higher.
+**CommonJS `require()` is not supported in version 3.0.0-rc1 or higher.**
 ```ts
 import fs from 'fs';
 import { MidiFile, MidiPlayer } from 'yjmidi';
