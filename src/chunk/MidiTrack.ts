@@ -7,6 +7,8 @@ import { EscapeEvent } from '../event/EscapeEvent.js';
 import { MidiEvent, MidiEventParameter } from '../event/midi/index.js';
 import { EventType, MetaEventType, MidiEventType } from '../consts.js';
 
+export type ForEachCallback = (events: Event[], playTime: number) => void;
+
 export class MidiTrack extends MidiChunk {
     static readonly CHUNK_ID = 'MTrk';
     readonly id: string = MidiTrack.CHUNK_ID;
@@ -89,15 +91,10 @@ export class MidiTrack extends MidiChunk {
     }
 
     /**
-     * 전체 이벤트 데이터를 통째로 반환
-     * @returns 안에서 쓰던 Map 객체
-     * @deprecated 위에 있는 getEvents() 쓰세요
+     * 존재하는 모든 이벤트를 순회
+     * @param cbfn callback 함수
      */
-    getAllEvents(): Map<number, Event[]> {
-        return this.#events;
-    }
-
-    forEach(cbfn: Function) {
+    forEach(cbfn: ForEachCallback) {
         for (let playTime of this.getAllEventTimes()) {
             cbfn(this.#events.get(playTime), playTime);
         }
