@@ -25,10 +25,10 @@ export class UnknownChunk extends MidiChunk {
     }
     
     serialize(): Uint8Array {
-        // id의 길이는 4바이트이고, 길이 정보를 넣기 위해 적어도 1바이트는 쓰게 됨
-        let bs = new ByteStream(new ArrayBuffer(5 + this.data.length));
+        // id의 길이 4바이트 + 데이터 길이 값 4바이트 = 8바이트
+        let bs = new ByteStream(new ArrayBuffer(8 + this.data.length));
         bs.writeBytes(new TextEncoder().encode(this.id));
-        bs.writeVarUint(this.data.length);
+        bs.writeUint32(this.data.length);
         bs.writeBytes(this.data);
         return new Uint8Array(bs.buffer);
     }
