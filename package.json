@@ -27,7 +27,7 @@
     },
     "homepage": "https://github.com/kmoon2437/yjmidi#readme",
     "dependencies": {
-        "byte-data-stream": "^2.2.0"
+        "byte-data-stream": "^2.3.1"
     },
     "devDependencies": {
         "@types/node": "^20.11.19",
