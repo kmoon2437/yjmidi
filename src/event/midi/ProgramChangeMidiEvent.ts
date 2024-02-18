@@ -14,6 +14,6 @@ export class ProgramChangeMidiEvent extends MidiEvent {
     }
 
     toMidiMessage(): MidiMessage {
-        return [this.subtype << 4 + this.channel, this.program];
+        return [(this.subtype << 4) + this.channel, this.program];
     }
 }

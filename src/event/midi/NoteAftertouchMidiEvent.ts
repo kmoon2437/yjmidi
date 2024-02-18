@@ -17,6 +17,6 @@ export class NoteAftertouchMidiEvent extends MidiEvent {
     }
 
     toMidiMessage(): MidiMessage {
-        return [this.subtype << 4 + this.channel, this.note, this.pressure];
+        return [(this.subtype << 4) + this.channel, this.note, this.pressure];
     }
 }

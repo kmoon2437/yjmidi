@@ -15,7 +15,7 @@ export abstract class NoteMidiEvent extends MidiEvent {
     }
     
     toMidiMessage(): MidiMessage {
-        return [this.subtype << 4 + this.channel, this.note, this.velocity];
+        return [(this.subtype << 4) + this.channel, this.note, this.velocity];
     }
 }
 
