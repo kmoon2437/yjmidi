@@ -1,6 +1,6 @@
 {
     "name": "yjmidi",
-    "version": "3.0.0-rc4",
+    "version": "3.0.0-rc5",
     "main": "dist/index.js",
     "type": "module",
     "description": "midi file parser/player",
