@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { EventType, MidiEventType, ControlChange } from './consts.js';
+import { ControlChange } from './consts.js';
 import { MidiFile } from './MidiFile.js';
 import { Event } from './event/Event.js';
 import { SysexEvent } from './event/SysexEvent.js';
