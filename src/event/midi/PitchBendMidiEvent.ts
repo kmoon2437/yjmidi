@@ -24,8 +24,8 @@ export class PitchBendMidiEvent extends MidiEvent {
     toMidiMessage(): MidiMessage {
         return [
             (this.subtype << 4) + this.channel,
-            this.pitchValue >> 7,
-            this.pitchValue - ((this.pitchValue >> 7) << 7) // 한번 오른쪽으로 밀면 밀린 비트는 모두 소실됨
+            this.pitchValue - ((this.pitchValue >> 7) << 7), // 한번 오른쪽으로 밀면 밀린 비트는 모두 소실됨
+            this.pitchValue >> 7
         ];
     }
 }
