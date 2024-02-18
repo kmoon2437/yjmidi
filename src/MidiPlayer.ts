@@ -54,7 +54,7 @@ export class MidiPlayer extends EventEmitter {
     set currentTick(val: number) {
         if (val < 0) return;
         this.#resetNotes();
-        this.playtick = val;
+        this.playtick = this.#currentTick = val;
         this.playms = this.calcCurrentMsFromCurrentTick(val);
     }
 
@@ -67,7 +67,7 @@ export class MidiPlayer extends EventEmitter {
         if (val < 0) return;
         this.#resetNotes();
         this.playms = Math.round(val);
-        this.playtick = this.currentTick;
+        this.playtick = this.calcCurrentTickFromCurrentMs(val);
     }
 
     /** 틱 단위의 총 재생 시간 */
@@ -169,7 +169,7 @@ export class MidiPlayer extends EventEmitter {
                 this.triggerMidiEvent(new ControlChangeMidiEvent(i, ControlChange.ALL_SOUND_OFF, 0), j);
 
                 // 피치벤드 초기화
-                this.triggerMidiEvent(new PitchBendMidiEvent(i, 0, 64), j);
+                this.triggerMidiEvent(new PitchBendMidiEvent(i, 8192), j);
 
                 // sustain(피아노의 오른쪽 페달과 같은 기능) 끄기
                 this.triggerMidiEvent(new ControlChangeMidiEvent(i, ControlChange.SUSTAIN_ONOFF, 0), j);
@@ -270,14 +270,12 @@ export class MidiPlayer extends EventEmitter {
 
         // 실제 이벤트 수행
         this.#currentTick = this.calcCurrentTickFromCurrentMs(this.playms);
-        let t = this.#currentTick - this.playtick;
-        for (let i = 0; i < t; i++) {
+        for (; this.playtick < this.#currentTick; this.playtick++) {
             this.file.tracks.forEach(track => {
                 if (track.hasEvents(this.playtick)) {
                     track.getEvents(this.playtick).forEach(event => this.triggerMidiEvent(event, track.portNo));
                 }
-            })
-            this.playtick++;
+            });
         }
 
         if (this.ended) {
