@@ -6,7 +6,8 @@
     "description": "midi file parser/player",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "docs": "typedoc src/index.ts --sort source-order"
+        "docs": "typedoc src/index.ts --sort source-order",
+        "prepare": "tsc"
     },
     "author": "Cho Yunjin",
     "license": "MIT",
