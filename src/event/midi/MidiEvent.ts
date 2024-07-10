@@ -33,4 +33,15 @@ export abstract class MidiEvent extends Event implements MidiMessageEvent {
     }
 
     abstract toMidiMessage(): MidiMessage;
+
+    serialize(): Uint8Array {
+        let msg = this.toMidiMessage();
+        return Uint8Array.from(msg);
+    }
+
+    serializeShortened(): Uint8Array {
+        let msg = this.toMidiMessage();
+        msg.pop();
+        return Uint8Array.from(msg);
+    }
 }

@@ -1,4 +1,4 @@
-import { ByteStream } from 'byte-data-stream';
+import { ByteStream, ByteStreamSimulator, ByteStreamInterface } from 'byte-data-stream';
 import { MidiChunk } from './MidiChunk.js';
 import { Event } from '../event/Event.js';
 import { MetaEvent, PortPrefixMetaEvent } from '../event/meta/index.js';
@@ -19,6 +19,7 @@ export class MidiTrack extends MidiChunk {
     /**
      * 미디 포트 번호
      * 가장 마지막으로 나온 port prefix 이벤트에서 나온 걸로 지정됨. 기본값은 0
+     * 미디파일 재생 시 포트번호 확인용이라 파일 write 시 실제 내용이 반영되지 않음
      */
     portNo: number;
 
@@ -109,9 +110,9 @@ export class MidiTrack extends MidiChunk {
         let lastMidiEventChannel: number;
         while (bs.isDataAvailable) {
             // delta = 직전 이벤트로부터 얼마나 시간이 지났는지에 대한 값
+            // 그리스 문자 delta가 수학 같은 데서 뭔 뜻인지 생각해보면 됨
             let delta = bs.readVarUint();
             let type = bs.readUint8();
-            let length: number;
             
             currentTick += delta;
             if ((type & 0xf0) == 0xf0) { // meta, sysex, escape 이벤트
@@ -119,11 +120,7 @@ export class MidiTrack extends MidiChunk {
                     let subtype = bs.readUint8();
                     let length = bs.readVarUint();
                     let event = MetaEvent.from(subtype, bs.readBytes(length));
-                    if (event instanceof PortPrefixMetaEvent) {
-                        this.portNo = event.port;
-                    } else {
-                        this.addEvent(currentTick, event);
-                    }
+                    this.addEvent(currentTick, event);
                 } else if (type == EventType.SYSEX) {
                     let length = bs.readVarUint();
                     this.addEvent(currentTick, new SysexEvent(bs.readBytes(length)));
@@ -136,8 +133,8 @@ export class MidiTrack extends MidiChunk {
                 let params: MidiEventParameter = [ 0 ];
                 let subtype: MidiEventType;
                 let channel: number;
-                if ((type & 128) == 0) {
-                    // 마지막 midi 이벤트와 같은 type과 channel을 따름
+                if ((type & 128) == 0) { // 정상적인 midi event type은 무조건 값이 128이거나 더 큰데, 그렇지 않은 경우
+                    // running status: 마지막 midi 이벤트와 같은 type과 channel을 따름
                     subtype = lastMidiEventType;
                     channel = lastMidiEventChannel;
                     params[0] = type;
@@ -161,5 +158,44 @@ export class MidiTrack extends MidiChunk {
                 this.addEvent(currentTick, MidiEvent.from(channel, subtype, params));
             }
         }
+
+        this.updatePortPrefix();
+    }
+
+    updatePortPrefix() {
+        this.forEach(event => {
+            if (event instanceof PortPrefixMetaEvent) {
+                this.portNo = event.port;
+            }
+        });
+    }
+
+    serialize(): Uint8Array {
+        const bsDryRun = new ByteStreamSimulator();
+        this.#writeActualData(bsDryRun);
+        const bs = new ByteStream(8 + bsDryRun.length);
+        bs.writeBytes(new TextEncoder().encode(this.id));
+        bs.writeUint32(bsDryRun.length);
+        this.#writeActualData(bs);
+        return new Uint8Array(bs.buffer);
+    }
+
+    #writeActualData(bs: ByteStreamInterface) {
+        let textEncoder = new TextEncoder();
+        let lastMidiEventType: MidiEventType;
+        let lastMidiEventChannel: number;
+        let lastTick = 0;
+        let delta: number;
+        this.forEach((events, tick) => {
+            events.forEach(event => {
+                // delta = 직전 이벤트로부터 얼마나 시간이 지났는지에 대한 값
+                // 그리스 문자 delta가 수학 같은 데서 뭔 뜻인지 생각해보면 됨
+                delta = tick - lastTick;
+                lastTick = tick;
+    
+                bs.writeVarUint(delta);
+                bs.writeBytes(event.serialize());
+            });
+        });
     }
 }

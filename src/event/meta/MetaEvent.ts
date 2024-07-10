@@ -21,7 +21,7 @@ export abstract class MetaEvent extends Event {
     /**
      * 정해진 subtype에 대응하는 meta 이벤트 객체를 만들어 반환
      * @param subtype meta 이벤트의 종류
-     * @param data 파싱을 거치지 않은 날것 그대로의 데이터
+     * @param data 파싱을 거치지 않은(그리고 길이를 포함하지 않는) 날것 그대로의 데이터
      */
     static from(subtype: MetaEventType, data: Uint8Array): MetaEvent {
         let event: MetaEvent;
@@ -56,5 +56,11 @@ export class UnknownMetaEvent extends MetaEvent {
         super();
         this.subtype = subtype;
         this.data = data;
+    }
+
+    serialize(): Uint8Array {
+        return Uint8Array.from([
+            EventType.META, this.subtype, this.data.length, ...this.data
+        ]);
     }
 }

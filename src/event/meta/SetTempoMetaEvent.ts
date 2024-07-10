@@ -1,5 +1,5 @@
 import { MetaEvent } from './index.js';
-import { MetaEventType } from '../../consts.js';
+import { EventType, MetaEventType } from '../../consts.js';
 
 export class SetTempoMetaEvent extends MetaEvent {
     readonly subtype: MetaEventType = MetaEventType.SET_TEMPO;
@@ -35,5 +35,12 @@ export class SetTempoMetaEvent extends MetaEvent {
             this.tempo += data[2];
         }
         this.playMs = null;
+    }
+
+    serialize(): Uint8Array {
+        return Uint8Array.from([
+            EventType.META, this.subtype,
+            0x03, this.tempo >> 16, (this.tempo >> 8) & 255, this.tempo & 255
+        ]);
     }
 }

@@ -19,8 +19,10 @@ export class MidiFile {
     /** 파일에 들어있는 모든 트랙들 */
     tracks: MidiTrack[];
 
-    /** 템포 이벤트 */
+    /** 템포 이벤트. 단순히 재생할 때 찾기 편하게 하려는 용도라 파일을 쓸 때 이걸 반영하지는 않음 */
     tempoEvents: MidiTrack;
+
+    /** 미디 파일이 공백 없이 그냥 끝나는 경우에 대비해 재생용으로 추가되는 공백 시간(밀리초 단위) */
     tailMs: number;
 
     /** 이 파일의 총 재생 시간(틱 단위). 초기값은 0 */
@@ -32,12 +34,23 @@ export class MidiFile {
     /**
      * 생성자
      * @param data 미디 데이터
-     * @param tailMs 미디 파일이 공백 없이 그냥 끝나는 경우에 대비해 추가되는 공백 시간(밀리초 단위)
+     * @param tailMs 미디 파일이 공백 없이 그냥 끝나는 경우에 대비해 재생용으로 추가되는 공백 시간(밀리초 단위)
      */
-    constructor(data: ArrayBuffer | Uint8Array, tailMs: number = 500) {
+    constructor(data: ArrayBuffer | Uint8Array = null, tailMs: number = 500) {
+        this.tailMs = tailMs;
+        this.unknownChunks = [];
+        if (data) {
+            this.#loadData(data);
+        } else {
+            this.header = new MidiFileHeader();
+            this.tracks = [];
+            this.tempoEvents = new MidiTrack(-1);
+        }
+    }
+    
+    #loadData(data: ArrayBuffer | Uint8Array) {
         let chunks = [];
         let d = new ByteStream(data);
-        this.tailMs = tailMs;
 
         while (d.isDataAvailable) {
             let id = d.readBytes(4).reduce((a, b) => a + String.fromCharCode(b), '');
@@ -50,7 +63,6 @@ export class MidiFile {
 
         let headerChunk = [];
         let trackChunks = [];
-        this.unknownChunks = [];
 
         chunks.forEach(chunk => {
             if (chunk.id == MidiFileHeader.CHUNK_ID) {
@@ -71,7 +83,14 @@ export class MidiFile {
         this.header = new MidiFileHeader(headerChunk[0].data);
         this.tracks = trackChunks.map((chunk, i) => new MidiTrack(i, chunk.data));
 
-        // 템포 이벤트만 따로 정리
+        this.updateTempoEvents();
+        this.#calculateDuration();
+    }
+
+    /**
+     * 템포 이벤트 인덱스 갱신. 파일을 쓰는 작업에서 필요할 거 같아서 public으로 설정함
+     */
+    updateTempoEvents() {
         this.tempoEvents = new MidiTrack(-1);
         for (let i in this.tracks) {
             this.tracks[i].forEach((events, time) => events.forEach(event => {
@@ -80,7 +99,6 @@ export class MidiFile {
                 }
             }));
         }
-        this.#calculateDuration();
     }
 
     /**
@@ -128,5 +146,15 @@ export class MidiFile {
                 this.durationTick += Math.round((this.tailMs * 1000) / this.header.tickResolution);
             }
         }
+    }
+
+    toUint8Array(): Uint8Array {
+        let chunks = [];
+        chunks.push(this.header.serialize());
+        this.tracks.forEach(track => chunks.push(track.serialize()));
+        this.unknownChunks.forEach(chunk => chunks.push(chunk.serialize()));
+        let bs = new ByteStream(chunks.map(data => data.length).reduce((a, b) => a + b, 0));
+        chunks.forEach(data => bs.writeBytes(data));
+        return new Uint8Array(bs.buffer);
     }
 }

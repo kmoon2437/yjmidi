@@ -1,5 +1,5 @@
 import { MetaEvent } from './index.js';
-import { MetaEventType } from '../../consts.js';
+import { EventType, MetaEventType } from '../../consts.js';
 
 export class TimeSignatureMetaEvent extends MetaEvent {
     readonly subtype: MetaEventType = MetaEventType.TIME_SIGNATURE;
@@ -66,5 +66,13 @@ export class TimeSignatureMetaEvent extends MetaEvent {
             this.metronomeClick = data[2];
             this.thirtySecondNotesPerBeat = data[3];
         }
+    }
+
+    serialize(): Uint8Array {
+        return Uint8Array.from([
+            EventType.META, this.subtype, 0x04,
+            this.numerator, this.denominatorExponent,
+            this.metronomeClick, this.thirtySecondNotesPerBeat
+        ]);
     }
 }

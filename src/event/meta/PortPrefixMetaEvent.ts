@@ -1,5 +1,5 @@
 import { MetaEvent } from './index.js';
-import { MetaEventType } from '../../consts.js';
+import { EventType, MetaEventType } from '../../consts.js';
 
 export class PortPrefixMetaEvent extends MetaEvent {
     readonly subtype: MetaEventType = MetaEventType.PORT_PREFIX;
@@ -22,5 +22,11 @@ export class PortPrefixMetaEvent extends MetaEvent {
         if (typeof data == 'number') this.port = data;
         else if (data instanceof Uint8Array) this.port = data[0];
         else this.port = 0;
+    }
+
+    serialize(): Uint8Array {
+        return Uint8Array.from([
+            EventType.META, this.subtype, 0x01, this.port
+        ]);
     }
 }

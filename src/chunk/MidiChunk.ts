@@ -9,11 +9,8 @@ export abstract class MidiChunk {
     /**
      * midi 파일에 넣을 수 있는 형태의 청크 데이터를 만들어 반환함.
      * chunk id와 길이까지 모두 들어 있음
-     * @todo 추후 abstract로 바꾸고 구현 예정
      */
-    serialize(): Uint8Array {
-        return null;
-    }
+    abstract serialize(): Uint8Array;
 }
 
 export class UnknownChunk extends MidiChunk {

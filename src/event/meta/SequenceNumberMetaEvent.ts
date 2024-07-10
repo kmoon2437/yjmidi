@@ -1,9 +1,9 @@
 import { MetaEvent } from './index.js';
-import { MetaEventType } from '../../consts.js';
+import { EventType, MetaEventType } from '../../consts.js';
 
 export class SequenceNumberMetaEvent extends MetaEvent {
     readonly subtype: MetaEventType = MetaEventType.SEQUENCE_NUMBER;
-    sequence: number;
+    sequence: number | null;
 
     /**
      * sequence 번호를 직접 받는 생성자
@@ -24,6 +24,15 @@ export class SequenceNumberMetaEvent extends MetaEvent {
             this.sequence = 0;
             this.sequence += data[0] << 8;
             this.sequence += data[1];
-        } else this.sequence = 0;
+        } else this.sequence = null;
+    }
+
+    serialize(): Uint8Array {
+        let sequenceData = (this.sequence ?? null) === null
+            ? [] : [this.sequence >> 8, this.sequence & 255];
+        return Uint8Array.from([
+            EventType.META, this.subtype,
+            sequenceData.length, ...sequenceData
+        ]);
     }
 }

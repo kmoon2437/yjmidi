@@ -1,5 +1,5 @@
 import { MetaEvent } from './index.js';
-import { MetaEventType } from '../../consts.js';
+import { EventType, MetaEventType } from '../../consts.js';
 
 export class KeySignatureMetaEvent extends MetaEvent {
     readonly subtype: MetaEventType = MetaEventType.KEY_SIGNATURE;
@@ -38,5 +38,13 @@ export class KeySignatureMetaEvent extends MetaEvent {
             this.key = data[0] > 127 ? data[0] - 256 : data[0];
             this.isMinor = !!data[1];
         }
+    }
+
+    serialize(): Uint8Array {
+        return Uint8Array.from([
+            EventType.META, this.subtype, 0x02,
+            this.key < 0 ? this.key + 256 : this.key,
+            this.isMinor ? 1 : 0
+        ]);
     }
 }

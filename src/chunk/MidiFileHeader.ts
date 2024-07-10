@@ -23,6 +23,9 @@ export enum MidiFileFormat {
     MULTI_INDEPENDENT_TRACK = 2
 }
 
+/** midi 파일 헤더의 데이터 길이 */
+export const HEADER_LENGTH = 6;
+
 /**
  * midi 파일의 header chunk
  */
@@ -54,13 +57,15 @@ export class MidiFileHeader extends MidiChunk {
      */
     constructor(data: Uint8Array = null) {
         super();
-        this.ticksPerBeat = this.framesPerSecond = this.ticksPerFrame = this.tickResolution = null;
+        this.format = MidiFileFormat.MULTI_TRACK;
+        this.ticksPerBeat = 960;
+        this.tracksCount = 0;
         if (data) this.#readData(data);
     }
     
     #readData(data: Uint8Array) {
+        if (data.byteLength != HEADER_LENGTH) throw new Error('Invalid header length');
         const bs = new ByteStream(data);
-        if (bs.length != 6) throw new Error('Invalid header length');
         this.format = bs.readUint16();
         this.tracksCount = bs.readUint16();
         this.setDivision(bs.readBytes(2));
@@ -72,6 +77,7 @@ export class MidiFileHeader extends MidiChunk {
      */
     setDivision(division: Uint8Array | number[]) {
         // 일단 전부 null로 설정
+        this.ticksPerBeat = this.framesPerSecond = this.ticksPerFrame = this.tickResolution = null;
 
         if (division[0] & 128) {
             this.framesPerSecond = division[0] & 127;
@@ -90,5 +96,30 @@ export class MidiFileHeader extends MidiChunk {
     setTicksPerBeat(ticksPerBeat: number) {
         this.ticksPerBeat = ticksPerBeat;
         this.framesPerSecond = this.ticksPerFrame = this.tickResolution = null;
+    }
+
+    serialize(): Uint8Array {
+        // id의 길이 4바이트 + 데이터 길이 값 4바이트 + 데이터 6바이트 = 14바이트
+        const bs = new ByteStream(new ArrayBuffer(8 + HEADER_LENGTH));
+        bs.writeBytes(new TextEncoder().encode(this.id));
+        bs.writeUint32(HEADER_LENGTH);
+        bs.writeUint16(this.format);
+        bs.writeUint16(this.tracksCount);
+        this.#writeDivision(bs);
+        return new Uint8Array(bs.buffer);
+    }
+
+    #writeDivision(bs: ByteStream) {
+        let division = [0, 0];
+
+        // 일반적으로 ticks per beat 쪽이 더 권장되는 방법이다
+        if (this.ticksPerBeat) {
+            division[0] = this.ticksPerBeat >> 8;
+            division[1] = this.ticksPerBeat & 255;
+        } else {
+            division[0] = this.framesPerSecond | 128;
+            division[1] = this.ticksPerFrame;
+        }
+        bs.writeBytes(division);
     }
 }

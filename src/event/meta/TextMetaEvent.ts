@@ -1,5 +1,6 @@
 import { MetaEvent } from './index.js';
-import { MetaEventType } from '../../consts.js';
+import { EventType, MetaEventType } from '../../consts.js';
+import { ByteStream } from 'byte-data-stream';
 
 export abstract class BaseTextMetaEvent extends MetaEvent {
     abstract readonly subtype: MetaEventType;
@@ -22,6 +23,17 @@ export abstract class BaseTextMetaEvent extends MetaEvent {
         if (typeof data == 'string') this.content = data;
         else if (data instanceof Uint8Array) this.content = new TextDecoder().decode(data);
         else this.content = '';
+    }
+
+    serialize(): Uint8Array {
+        let encodedContent = new TextEncoder().encode(this.content);
+
+        // meta event 표시 1바이트 + subtype 1바이트 + 길이 최소 1바이트 = 최소 3바이트
+        let bs = new ByteStream(3 + encodedContent.length);
+        bs.writeBytes([EventType.META, this.subtype]);
+        bs.writeVarUint(encodedContent.length);
+        bs.writeBytes(encodedContent);
+        return new Uint8Array(bs.buffer);
     }
 }
 

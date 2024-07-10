@@ -1,5 +1,5 @@
 import { MetaEvent } from './index.js';
-import { MetaEventType } from '../../consts.js';
+import { EventType, MetaEventType } from '../../consts.js';
 
 /**
  * 자꾸 SMTP랑 헷갈림
@@ -44,5 +44,12 @@ export class SMPTEOffsetMetaEvent extends MetaEvent {
             this.frames = data[3];
             this.subframes = data[4];
         }
+    }
+
+    serialize(): Uint8Array {
+        return Uint8Array.from([
+            EventType.META, this.subtype, 0x05,
+            this.hours, this.minutes, this.seconds, this.frames, this.subframes
+        ]);
     }
 }

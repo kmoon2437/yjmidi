@@ -28,11 +28,11 @@
     },
     "homepage": "https://github.com/kmoon2437/yjmidi#readme",
     "dependencies": {
-        "byte-data-stream": "^2.3.1"
+        "byte-data-stream": "^2.3.3"
     },
     "devDependencies": {
-        "@types/node": "^20.11.19",
-        "typedoc": "^0.25.8",
-        "typescript": "^5.3.3"
+        "@types/node": "^20.14.10",
+        "typedoc": "^0.26.4",
+        "typescript": "^5.5.3"
     }
 }
