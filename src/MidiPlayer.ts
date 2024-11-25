@@ -256,17 +256,22 @@ export class MidiPlayer extends EventEmitter {
         this.#resetNotes();
         this.playing = false;
         clearInterval(this.interval);
+        this.emit('playertick', this.currentMs, this.currentTick);
     }
 
     /** 재생 중 무한 반복하면서 실행됨 */
     #playLoop() {
         if (this.inLoop) return;
         this.inLoop = true;
+
         // 밀리초 계산
         let now = Date.now();
         let elapsedMs = (now - this.lastplayms) * this.tempo;
         this.lastplayms = now;
         this.playms += elapsedMs;
+
+        // 매 loop마다 현재 재생 시간을 전달
+        this.emit('playertick', this.currentMs, this.currentTick);
 
         // 실제 이벤트 수행
         this.#currentTick = this.calcCurrentTickFromCurrentMs(this.playms);
