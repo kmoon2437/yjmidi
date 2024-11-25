@@ -56,6 +56,7 @@ export class MidiPlayer extends EventEmitter {
         this.#resetNotes();
         this.playtick = this.#currentTick = val;
         this.playms = this.calcCurrentMsFromCurrentTick(val);
+        this.#playerTick();
     }
 
     /** 밀리초 단위의 현재 재생 시간 */
@@ -68,6 +69,7 @@ export class MidiPlayer extends EventEmitter {
         this.#resetNotes();
         this.playms = Math.round(val);
         this.playtick = this.calcCurrentTickFromCurrentMs(val);
+        this.#playerTick();
     }
 
     /** 틱 단위의 총 재생 시간 */
@@ -124,6 +126,7 @@ export class MidiPlayer extends EventEmitter {
         this.#currentTick = 0;
         this.tempo = 1; // 배속 설정
         if (opts.initialize) this.#resetNotes(true);
+        this.#playerTick();
 
         // reset sysex가 없는 midi파일의 경우 reset sysex를 기본으로 적용하도록 설정
         // 테스트용으로 sysex를 보내지 않도록 할 수 있음
@@ -256,6 +259,10 @@ export class MidiPlayer extends EventEmitter {
         this.#resetNotes();
         this.playing = false;
         clearInterval(this.interval);
+        this.#playerTick();
+    }
+
+    #playerTick() {
         this.emit('playertick', this.currentMs, this.currentTick);
     }
 
@@ -269,10 +276,7 @@ export class MidiPlayer extends EventEmitter {
         let elapsedMs = (now - this.lastplayms) * this.tempo;
         this.lastplayms = now;
         this.playms += elapsedMs;
-
-        // 매 loop마다 현재 재생 시간을 전달
-        this.emit('playertick', this.currentMs, this.currentTick);
-
+        
         // 실제 이벤트 수행
         this.#currentTick = this.calcCurrentTickFromCurrentMs(this.playms);
         for (; this.playtick < this.#currentTick; this.playtick++) {
@@ -282,6 +286,8 @@ export class MidiPlayer extends EventEmitter {
                 }
             });
         }
+
+        this.#playerTick(); // 매 loop마다 현재 재생 시간을 전달
 
         if (this.ended) {
             this.pause();
