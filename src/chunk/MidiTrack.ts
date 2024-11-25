@@ -163,10 +163,12 @@ export class MidiTrack extends MidiChunk {
     }
 
     updatePortPrefix() {
-        this.forEach(event => {
-            if (event instanceof PortPrefixMetaEvent) {
-                this.portNo = event.port;
-            }
+        this.forEach(events => {
+            events.forEach(event => {
+                if (event instanceof PortPrefixMetaEvent) {
+                    this.portNo = event.port;
+                }
+            });
         });
     }
 
