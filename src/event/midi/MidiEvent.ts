@@ -1,5 +1,5 @@
 import { Event } from '../Event.js';
-import { EventType, MidiEventType, ControlChange } from '../../consts.js';
+import { EventType, MidiEventType } from '../../consts.js';
 import {
     NoteOffMidiEvent, NoteOnMidiEvent,
     NoteAftertouchMidiEvent, ControlChangeMidiEvent,

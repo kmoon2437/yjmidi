@@ -5,7 +5,7 @@ import { MetaEvent, PortPrefixMetaEvent } from '../event/meta/index.js';
 import { SysexEvent } from '../event/SysexEvent.js';
 import { EscapeEvent } from '../event/EscapeEvent.js';
 import { MidiEvent, MidiEventParameter } from '../event/midi/index.js';
-import { EventType, MetaEventType, MidiEventType } from '../consts.js';
+import { EventType, MidiEventType } from '../consts.js';
 
 export type ForEachCallback = (events: Event[], playTime: number) => void;
 

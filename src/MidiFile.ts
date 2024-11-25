@@ -1,10 +1,8 @@
 import { ByteStream } from 'byte-data-stream';
-import { EventType, MetaEventType, MidiEventType } from './consts.js';
 import { MidiChunk, UnknownChunk } from './chunk/MidiChunk.js';
 import { MidiFileHeader } from './chunk/MidiFileHeader.js';
 import { MidiTrack } from './chunk/MidiTrack.js';
 import { SetTempoMetaEvent } from './event/meta/index.js';
-import { Event } from './event/Event.js';
 
 export class MidiFile {
     /** 어떤 유형인지 알 수 없는 청크들 */
