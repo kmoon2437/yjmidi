@@ -95,6 +95,9 @@ export class MidiPlayer extends EventEmitter {
         super();
         if (portCount < 1) throw new RangeError('portCount(1st argument) must be >= 1. Received ' + portCount);
         this.portCount = portCount;
+
+        // 재생 시간 초기화
+        this.playms = this.lastplayms = this.playtick = this.#currentTick = 0;
     }
 
     /**
@@ -120,10 +123,8 @@ export class MidiPlayer extends EventEmitter {
             resetSysex: 'gs'
         }, opts ?? {});
 
-        this.playms = 0;
-        this.lastplayms = 0;
-        this.playtick = 0;
-        this.#currentTick = 0;
+        // 재생 시간 초기화
+        this.playms = this.lastplayms = this.playtick = this.#currentTick = 0;
         this.tempo = 1; // 배속 설정
         if (opts.initialize) this.#resetNotes(true);
         this.#playerTick();
